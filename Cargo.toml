@@ -1,0 +1,13 @@
+[package]
+name = "hanabi_test"
+version = "0.1.0"
+authors = ["Konstantin Antonov <knstantna@gmail.com>"] 
+edition = "2021"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8"
+bevy = { version = "0.9.1"}
+bevy_hanabi = { version = "0.5.3" }
