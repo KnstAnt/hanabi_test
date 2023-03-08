@@ -5,9 +5,7 @@ use bevy::{
         render_resource::WgpuFeatures, settings::WgpuSettings,
         view::RenderLayers,
     },
-    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
 };
-use std::f32::consts::PI;
 use rand::prelude::*;
 
 use bevy_hanabi::prelude::*;
@@ -27,7 +25,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }))
         .add_system(bevy::window::close_on_esc)
         .add_plugin(HanabiPlugin)
-        .add_plugin(FrameTimeDiagnosticsPlugin)
         .add_startup_system(setup)
         .add_system(update)
         .add_system(spawn)
@@ -38,11 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn setup(
-    asset_server: Res<AssetServer>,
     mut commands: Commands,
-    mut effects: ResMut<Assets<EffectAsset>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let mut camera = Camera3dBundle {
         camera: Camera {
@@ -54,7 +47,6 @@ fn setup(
     camera.transform.translation = Vec3::new(0.0, 0.0, 100.0);
 
     commands.spawn((camera, RenderLayers::layer(3)));
-
 }
 
 
@@ -62,8 +54,6 @@ fn spawn(
     asset_server: Res<AssetServer>,
     mut commands: Commands,
     mut effects: ResMut<Assets<EffectAsset>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let texture_handle: Handle<Image> = asset_server.load("cloud.png");
 
@@ -73,7 +63,7 @@ fn spawn(
     gradient.add_key(0.4, Vec4::new(1.0, 0.0, 0.0, 1.0));
     gradient.add_key(1.0, Vec4::splat(0.0));
 
-    for i in 0..10 {
+    for _i in 0..10 {
         let effect = effects.add(
             EffectAsset {
                 name: "Gradient".to_string(),
@@ -113,9 +103,10 @@ fn update(
     mut query: Query<&mut Transform, With<ParticleEffect>>
 ) {
     for mut transform in query.iter_mut() {
-        transform.translation = transform.translation - 0.02 * Vec3::Y * time.elapsed_seconds();
+        transform.translation = transform.translation - 10. * Vec3::Y * time.delta_seconds();
     }
 }
+
 
 fn remove(
     mut commands: Commands,
