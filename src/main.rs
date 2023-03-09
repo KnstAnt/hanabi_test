@@ -10,7 +10,8 @@ use rand::prelude::*;
 
 use bevy_hanabi::prelude::*;
 
-
+#[derive(Component)]
+pub struct Marker;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut options = WgpuSettings::default();
     options
@@ -75,7 +76,7 @@ fn spawn(
                 center: Vec3::ZERO,
                 radius: 1.,
                 dimension: ShapeDimension::Volume,
-                speed: 2.0.into(),
+                speed: 0.1.into(),
             })
             .init(ParticleLifetimeModifier {
                 lifetime: 5_f32.into(),
@@ -89,18 +90,24 @@ fn spawn(
         let x = thread_rng().gen_range(-50.0f32..50.0);
 
         commands
-            .spawn((
-                Name::new("effect"),
-                ParticleEffectBundle::new(effect),
-                RenderLayers::layer(3),
-            ))
-            .insert(Transform::from_translation(Vec3::new(x as f32, 30., 0.)));
+            .spawn(SpatialBundle {
+                transform: Transform::from_translation(Vec3::new(x as f32, 30., 0.)),
+                ..Default::default()
+            })
+            .insert(Marker)
+            .with_children(|parent| {
+                parent.spawn((
+                    Name::new("effect"),
+                    ParticleEffectBundle::new(effect),
+                    RenderLayers::layer(3),
+                ));
+            });
     }
 }
 
 fn update(
     time: Res<Time>, 
-    mut query: Query<&mut Transform, With<ParticleEffect>>
+    mut query: Query<&mut Transform, With<Marker>>
 ) {
     for mut transform in query.iter_mut() {
         transform.translation = transform.translation - 10. * Vec3::Y * time.delta_seconds();
@@ -110,7 +117,7 @@ fn update(
 
 fn remove(
     mut commands: Commands,
-    query: Query<(Entity, &Transform), With<ParticleEffect>>
+    query: Query<(Entity, &Transform), With<Marker>>
 ) {
     for (entity, transform) in query.iter() {
         if transform.translation.y < -25. {
